@@ -51,3 +51,7 @@ git push origin main
 ```
 
 > Note: Examples are written in my own words (W3Schools-inspired), and you can edit/extend them with more "Try It Yourself" experiments.
+
+## Notes
+- Added extra notes after completing W3Schools Try It examples.
+
