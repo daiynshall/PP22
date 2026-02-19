@@ -1,6 +1,5 @@
 # boolean_intro.py
 # Practice 2: Boolean Values (W3Schools-inspired examples)
-# Run: python boolean_intro.py
 
 # In Python, booleans are True or False.
 is_student = True

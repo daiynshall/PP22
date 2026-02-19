@@ -14,6 +14,4 @@ name = "Aida"
 print("name == 'Aida':", name == "Aida")
 print("name == 'aida':", name == "aida")  # case-sensitive
 
-# Comparing strings is lexicographical (dictionary-like) by Unicode code points
-print("'ab' < 'cd':", "ab" < "cd")
-print("'Z' < 'a':", "Z" < "a")
+
