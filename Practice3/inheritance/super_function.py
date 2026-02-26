@@ -32,3 +32,7 @@ if __name__ == "__main__":
 
     # Example 4: and extra child attribute
     print("dev language:", dev.language)
+
+#Parent class is the class being inherited from, also called base class.
+
+#Child class is the class that inherits from another class, also called derived class.

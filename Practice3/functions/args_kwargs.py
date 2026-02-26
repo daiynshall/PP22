@@ -13,3 +13,4 @@ if __name__ == "__main__":
 
     user = build_profile("amir", age=19, city="Almaty")
     print("profile =", user)
+ 

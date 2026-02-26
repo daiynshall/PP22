@@ -13,3 +13,6 @@ if __name__ == "__main__":  # Runs only when file is executed directly
     print("start balance =", acc.balance)  # Print current balance
     acc.deposit(50)  # Deposit 50 into the account
     print("after deposit =", acc.balance)  # Print new balance
+
+#The __init__() method is used to assign values to object properties, or to perform operations 
+# that are necessary when the object is being created.
