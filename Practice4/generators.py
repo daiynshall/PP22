@@ -1,5 +1,3 @@
-# generators.py — супер простые примеры
-
 # 1) iter() и next()
 a = [10, 20, 30]
 it = iter(a)
