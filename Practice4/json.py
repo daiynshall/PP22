@@ -1,5 +1,3 @@
-# json.py — супер простые примеры JSON
-
 import json
 
 # 1) json.loads() — строка JSON -> Python
