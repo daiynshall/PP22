@@ -1,27 +1,35 @@
-# math.py — супер простые примеры math/random
+import math
+
+degree = float(input("Enter the degree: "))
+radian = math.radians(degree)
+
+print(f"Output radian: {radian:.6f}")
+
+#place 
+
+height = float(input("Enter the height: "))
+base1 = float(input("Enter the first base: "))
+base2 = float(input("Enter the second base: "))
+
+area = (base1 + base2) * height / 2
+print("Area:", area)
+
+#place
 
 import math
-import random
 
-nums = [3, -8, 2, 10]
+n = int(input("Enter the number of sides: "))
+m = float(input("Enter the length of a side: "))
 
-# 1) built-in
-print("min:", min(nums))
-print("max:", max(nums))
-print("abs(-8):", abs(-8))
-print("round(3.14159, 2):", round(3.14159, 2))
-print("pow(2, 5):", pow(2, 5))
+area = (n * m ** 2) / (4 * math.tan(math.pi / n))
+print("Area:", area)
 
-# 2) math module
-print("sqrt(25):", math.sqrt(25))
-print("ceil(2.1):", math.ceil(2.1))
-print("floor(2.9):", math.floor(2.9))
-print("pi:", math.pi)
+#place 
 
-# 3) random module
-print("random():", random.random())        # 0..1
-print("randint(1,6):", random.randint(1, 6))  # кубик
-items = ["apple", "banana", "kiwi"]
-print("choice:", random.choice(items))
-random.shuffle(items)
-print("shuffle:", items)
+import math
+
+n = int(input("Enter the base:"))
+m = int(input("Enter the length: "))
+
+area = n * m
+print("Area: ", area)
