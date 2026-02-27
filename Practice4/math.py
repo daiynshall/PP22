@@ -1,5 +1,3 @@
-# math.py — супер простые примеры math/random
-
 import math
 import random
 
