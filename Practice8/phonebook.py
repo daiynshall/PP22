@@ -4,11 +4,6 @@ from pathlib import Path
 from connect import get_connection
 
 
-from pathlib import Path
-import csv
-from connect import get_connection
-
-
 def import_from_csv(file_path: str):
     try:
         base_dir = Path(__file__).resolve().parent
@@ -39,32 +34,21 @@ def import_from_csv(file_path: str):
 
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM public.get_contacts_paginated(%s, %s);", (limit, offset))
-                result = cur.fetchone()
+                cur.execute("CALL insert_many_contacts(%s, %s);", (names, phones))
             conn.commit()
 
-        invalid_data = result[0] if result and result[0] else []
-
         print("Contacts import finished.")
-        if invalid_data:
-            print("\nIncorrect data:")
-            for item in invalid_data:
-                print("-", item)
-        else:
-            print("No incorrect data found.")
+        print("No incorrect data found.")
 
     except Exception as e:
         print(f"Error importing contacts: {e}")
 
 
-def add_or_update_contact(first_name: str, last_name: str, phone: str):
+def add_or_update_contact(name: str, phone: str):
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(
-                    "CALL upsert_contact(%s, %s, %s);",
-                    (first_name, last_name, phone)
-                )
+                cur.execute("CALL upsert_contact(%s, %s);", (name, phone))
             conn.commit()
 
         print("Contact added/updated successfully.")
@@ -103,7 +87,7 @@ def show_paginated_contacts(limit: int, offset: int):
         else:
             print("\n--- Paginated Contacts ---")
             for row in rows:
-                print(f"ID: {row[0]} | Name: {row[1]} {row[2]} | Phone: {row[3]}")
+                print(f"ID: {row[0]} | Name: {row[1]} | Phone: {row[2]}")
 
     except Exception as e:
         print(f"Error showing contacts: {e}")
@@ -116,7 +100,7 @@ def delete_contact(value: str):
                 cur.execute("CALL delete_contact(%s);", (value,))
             conn.commit()
 
-        print("Delete procedure executed.")
+        print("Contact deleted successfully.")
 
     except Exception as e:
         print(f"Error deleting contact: {e}")
@@ -139,10 +123,9 @@ def main_menu():
             import_from_csv(path)
 
         elif choice == "2":
-            first_name = input("Enter first name: ").strip()
-            last_name = input("Enter last name (optional): ").strip()
+            name = input("Enter name: ").strip()
             phone = input("Enter phone: ").strip()
-            add_or_update_contact(first_name, last_name, phone)
+            add_or_update_contact(name, phone)
 
         elif choice == "3":
             term = input("Enter search term: ").strip()
