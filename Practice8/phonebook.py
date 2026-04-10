@@ -39,7 +39,7 @@ def import_from_csv(file_path: str):
 
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute("CALL insert_many_contacts(%s, %s, %s);", (names, phones, None))
+                cur.execute("SELECT * FROM public.get_contacts_paginated(%s, %s);", (limit, offset))
                 result = cur.fetchone()
             conn.commit()
 
@@ -85,7 +85,7 @@ def search_contacts(term: str):
         else:
             print("\n--- Search Results ---")
             for row in rows:
-                print(f"ID: {row[0]} | Name: {row[1]} {row[2]} | Phone: {row[3]}")
+                print(f"ID: {row[0]} | Name: {row[1]} | Phone: {row[2]}")
 
     except Exception as e:
         print(f"Error searching contacts: {e}")
