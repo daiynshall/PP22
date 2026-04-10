@@ -6,48 +6,40 @@ from db_init import initialize_database
 
 
 def import_from_csv(file_path: str):
-    """Import contacts from CSV into the phonebook table."""
-    query = """
-    INSERT INTO phonebook (first_name, phone_number)
-    VALUES (%s, %s)
-    ON CONFLICT (phone_number)
-    DO UPDATE SET first_name = EXCLUDED.first_name;
-    """
-
     try:
-        file = Path(file_path)
+        file = Path(__file__).resolve().parent / file_path
         if not file.exists():
-            print(f"File not found: {file_path}")
+            print(f"File not found: {file}")
             return
 
-        imported_count = 0
+        names = []
+        phones = []
+
+        with open(file, mode="r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+
+            required_columns = {"first_name", "phone_number"}
+            if not reader.fieldnames or not required_columns.issubset(set(reader.fieldnames)):
+                print("CSV must contain these headers: first_name, phone_number")
+                return
+
+            for row in reader:
+                name = (row.get("first_name") or "").strip()
+                phone = (row.get("phone_number") or "").strip()
+
+                if name and phone:
+                    names.append(name)
+                    phones.append(phone)
 
         with get_connection() as conn:
             with conn.cursor() as cur:
-                with open(file_path, mode="r", encoding="utf-8", newline="") as f:
-                    reader = csv.DictReader(f)
-
-                    required_columns = {"first_name", "phone_number"}
-                    if not reader.fieldnames or not required_columns.issubset(set(reader.fieldnames)):
-                        print("CSV must contain these headers: first_name, phone_number")
-                        return
-
-                    for row in reader:
-                        name = (row.get("first_name") or "").strip()
-                        phone = (row.get("phone_number") or "").strip()
-
-                        if not name or not phone:
-                            continue
-
-                        cur.execute(query, (name, phone))
-                        imported_count += 1
-
+                cur.execute("CALL insert_many_contacts(%s, %s);", (names, phones))
             conn.commit()
-            print(f"Contacts imported successfully from CSV. Rows processed: {imported_count}")
+
+        print("Contacts imported successfully from CSV.")
+
     except Exception as e:
-        print(f"Error importing from CSV: {e}")
-
-
+        print(f"Error importing contacts: {e}")
 
 def add_contact(name: str, phone: str):
     """Add a new contact manually."""
