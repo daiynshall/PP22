@@ -4,17 +4,24 @@ from pathlib import Path
 from connect import get_connection
 
 
+from pathlib import Path
+import csv
+from connect import get_connection
+
+
 def import_from_csv(file_path: str):
     try:
-        file = Path(file_path)
+        base_dir = Path(__file__).resolve().parent
+        file = base_dir / file_path
+
         if not file.exists():
-            print(f"File not found: {file_path}")
+            print(f"File not found: {file}")
             return
 
         names = []
         phones = []
 
-        with open(file_path, mode="r", encoding="utf-8-sig", newline="") as f:
+        with open(file, mode="r", encoding="utf-8-sig", newline="") as f:
             reader = csv.DictReader(f)
 
             required_columns = {"first_name", "phone_number"}
@@ -32,10 +39,7 @@ def import_from_csv(file_path: str):
 
         with get_connection() as conn:
             with conn.cursor() as cur:
-                cur.execute(
-                    "CALL insert_many_contacts(%s, %s, %s);",
-                    (names, phones, None)
-                )
+                cur.execute("CALL insert_many_contacts(%s, %s, %s);", (names, phones, None))
                 result = cur.fetchone()
             conn.commit()
 
