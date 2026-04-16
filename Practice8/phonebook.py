@@ -91,8 +91,7 @@ def show_paginated_contacts(limit: int, offset: int):
 
     except Exception as e:
         print(f"Error showing contacts: {e}")
-
-
+        
 def delete_contact(value: str):
     try:
         with get_connection() as conn:
