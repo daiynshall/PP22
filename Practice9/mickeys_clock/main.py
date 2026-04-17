@@ -1,32 +1,31 @@
-from pathlib import Path
 import pygame
+import sys
 from clock import MickeyClock
 
-SCREEN_SIZE = (700, 700)
-FPS = 30
-
-
-def main() -> None:
+def main():
     pygame.init()
-    screen = pygame.display.set_mode(SCREEN_SIZE)
-    pygame.display.set_caption("Mickey's Clock")
-    clock = pygame.time.Clock()
-
-    image_path = Path(__file__).resolve().parent / "images" / "mickey_hand.png"
-    mickey_clock = MickeyClock(image_path, SCREEN_SIZE)
-
+    # Устанавливаем размер окна под твой фон (обычно 800x800 или 1000x1000)
+    screen = pygame.display.set_mode((800, 800))
+    pygame.display.set_caption("KBTU Practice 7: Mickey Clock")
+    timer = pygame.time.Clock()
+    
+    mickey_clock = MickeyClock(800, 800)
+    
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
+        
+        # Очистка и отрисовка
+        screen.fill((255, 255, 255))
         mickey_clock.draw(screen)
+        
         pygame.display.flip()
-        clock.tick(FPS)
+        timer.tick(60)
 
     pygame.quit()
-
+    sys.exit()
 
 if __name__ == "__main__":
     main()

@@ -1,132 +1,50 @@
-from __future__ import annotations
-
-from datetime import datetime
-from pathlib import Path
-import math
 import pygame
-
-
-def blit_rotate_pivot(
-    surface: pygame.Surface,
-    image: pygame.Surface,
-    pivot_world: tuple[int, int],
-    angle_degrees: float,
-    pivot_local: tuple[int, int],
-) -> None:
-    """
-    Rotate an image around a custom point inside that image and draw it so the
-    chosen pivot stays exactly at ``pivot_world``.
-
-    ``pivot_local`` is measured in image coordinates.
-    """
-    image_rect = image.get_rect(
-        topleft=(pivot_world[0] - pivot_local[0], pivot_world[1] - pivot_local[1])
-    )
-
-    offset_center_to_pivot = pygame.math.Vector2(pivot_world) - image_rect.center
-    rotated_offset = offset_center_to_pivot.rotate(-angle_degrees)
-    rotated_center = (
-        pivot_world[0] - rotated_offset.x,
-        pivot_world[1] - rotated_offset.y,
-    )
-
-    rotated_image = pygame.transform.rotate(image, angle_degrees)
-    rotated_rect = rotated_image.get_rect(center=rotated_center)
-    surface.blit(rotated_image, rotated_rect)
-
+import datetime
+import os
 
 class MickeyClock:
-    def __init__(self, image_path: Path, size: tuple[int, int] = (700, 700)):
-        self.width, self.height = size
-        self.center = (self.width // 2, self.height // 2 + 40)
-        self.background_color = (245, 245, 245)
-        self.clock_face_color = (255, 255, 255)
-        self.outline_color = (30, 30, 30)
+    def __init__(self, screen_width, screen_height):
+        self.width = screen_width
+        self.height = screen_height
+        self.center = (screen_width // 2, screen_height // 2)
+        self.start_time = datetime.datetime.now()
 
-        base_hand = pygame.image.load(str(image_path)).convert_alpha()
+        assets_path = os.path.join(os.path.dirname(__file__), "images")
 
-        # Slightly different sizes make both hands easier to see.
-        self.minute_hand = pygame.transform.smoothscale(base_hand, (70, 210))
-        self.second_hand = pygame.transform.smoothscale(base_hand, (76, 240))
+        self.bg = pygame.image.load(os.path.join(assets_path, "mickey.png"))
+        self.bg = pygame.transform.scale(self.bg, (self.width, self.height))
 
-        # Mirror one hand so the clock has a left and right Mickey arm.
-        self.minute_hand = pygame.transform.flip(self.minute_hand, True, False)
+        self.hand_min_img = pygame.image.load(os.path.join(assets_path, "right_hand.png"))
+        self.hand_sec_img = pygame.image.load(os.path.join(assets_path, "left_hand.png"))
 
-        # The pivot must be at the yellow cuff area, not at the glove.
-        # These values come from the source image geometry.
-        cuff_center_original = (80, 396)  # center of the yellow cuff on 160x480 image
-        self.minute_pivot = (
-            round(cuff_center_original[0] * self.minute_hand.get_width() / 160),
-            round(cuff_center_original[1] * self.minute_hand.get_height() / 480),
-        )
-        self.second_pivot = (
-            round(cuff_center_original[0] * self.second_hand.get_width() / 160),
-            round(cuff_center_original[1] * self.second_hand.get_height() / 480),
-        )
+        # right_hand смотрит на 2 часа (+60° от 12)
+        # чтобы она показывала 12 когда угол=0, нужно offset = +60
+        self.min_offset = 60
 
-        self.face_radius = 180
-        self.ear_radius = 70
+        # left_hand смотрит на 10 часов (-60° от 12)
+        # чтобы она показывала 12 когда угол=0, нужно offset = -60
+        self.sec_offset = -60
 
-    def _draw_background(self, screen: pygame.Surface) -> None:
-        screen.fill(self.background_color)
+    def get_angles(self, current_time):
+        # Секундная — всегда с 0, считаем от старта программы
+        elapsed = (current_time - self.start_time).total_seconds()
+        sec_angle = -(elapsed % 60) * 6 + self.sec_offset
 
-        left_ear = (self.center[0] - 130, self.center[1] - 170)
-        right_ear = (self.center[0] + 130, self.center[1] - 170)
+        # Минутная — реальные минуты + плавность от секунд
+        min_angle = -(current_time.minute * 6 + current_time.second * 0.1) + self.min_offset
 
-        pygame.draw.circle(screen, self.outline_color, left_ear, self.ear_radius + 4)
-        pygame.draw.circle(screen, self.clock_face_color, left_ear, self.ear_radius)
+        return sec_angle, min_angle
 
-        pygame.draw.circle(screen, self.outline_color, right_ear, self.ear_radius + 4)
-        pygame.draw.circle(screen, self.clock_face_color, right_ear, self.ear_radius)
+    def draw(self, surface):
+        current_time = datetime.datetime.now()
+        surface.blit(self.bg, (0, 0))
 
-        pygame.draw.circle(screen, self.outline_color, self.center, self.face_radius + 4)
-        pygame.draw.circle(screen, self.clock_face_color, self.center, self.face_radius)
+        sec_angle, min_angle = self.get_angles(current_time)
 
-        font = pygame.font.SysFont(None, 34)
-        title = font.render("Mickey's Clock - Minutes / Seconds", True, self.outline_color)
-        screen.blit(title, (self.width // 2 - title.get_width() // 2, 24))
+        self._blit_rotate(surface, self.hand_min_img, min_angle)
+        self._blit_rotate(surface, self.hand_sec_img, sec_angle)
 
-        for i in range(60):
-            angle = math.radians(i * 6 - 90)
-            outer = (
-                self.center[0] + int(math.cos(angle) * self.face_radius),
-                self.center[1] + int(math.sin(angle) * self.face_radius),
-            )
-            inner_length = self.face_radius - (20 if i % 5 == 0 else 10)
-            inner = (
-                self.center[0] + int(math.cos(angle) * inner_length),
-                self.center[1] + int(math.sin(angle) * inner_length),
-            )
-            width = 4 if i % 5 == 0 else 2
-            pygame.draw.line(screen, self.outline_color, inner, outer, width)
-
-        digital_font = pygame.font.SysFont(None, 50)
-        now = datetime.now()
-        digital_text = digital_font.render(now.strftime("%M:%S"), True, self.outline_color)
-        screen.blit(digital_text, (self.width // 2 - digital_text.get_width() // 2, self.center[1] + 210))
-
-    def draw(self, screen: pygame.Surface) -> None:
-        now = datetime.now()
-        self._draw_background(screen)
-
-        minute_angle = -((now.minute + now.second / 60) * 6)
-        second_angle = -(now.second * 6)
-
-        # Both hands now rotate around the actual clock center.
-        blit_rotate_pivot(
-            screen,
-            self.minute_hand,
-            self.center,
-            minute_angle,
-            self.minute_pivot,
-        )
-        blit_rotate_pivot(
-            screen,
-            self.second_hand,
-            self.center,
-            second_angle,
-            self.second_pivot,
-        )
-
-        pygame.draw.circle(screen, self.outline_color, self.center, 10)
-        pygame.draw.circle(screen, (255, 220, 120), self.center, 6)
+    def _blit_rotate(self, surface, image, angle):
+        rotated = pygame.transform.rotate(image, angle)
+        rect = rotated.get_rect(center=self.center)
+        surface.blit(rotated, rect)

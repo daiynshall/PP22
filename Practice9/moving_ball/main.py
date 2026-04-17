@@ -1,43 +1,41 @@
 import pygame
 from ball import Ball
-def main():
-    pygame.init()
 
-    screen_width = 800
-    screen_height = 600
-    screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption("Moving Ball")
+pygame.init()
 
-    clock = pygame.time.Clock()
+WIDTH = 800
+HEIGHT = 600
 
-    ball = Ball(400, 300)
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Ball Game")
 
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+ball = Ball(WIDTH // 2, HEIGHT // 2)
 
-        # 👇 управление на удержание
-        keys = pygame.key.get_pressed()
+clock = pygame.time.Clock()
+running = True
 
-        if keys[pygame.K_a]:
-            ball.move(-ball.step, 0, screen_width, screen_height)
-        if keys[pygame.K_d]:
-            ball.move(ball.step, 0, screen_width, screen_height)
-        if keys[pygame.K_w]:
-            ball.move(0, -ball.step, screen_width, screen_height)
-        if keys[pygame.K_s]:
-            ball.move(0, ball.step, screen_width, screen_height)
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
-        screen.fill((0, 0, 0))
-        ball.draw(screen)
+    keys = pygame.key.get_pressed()
 
-        pygame.display.flip()
-        clock.tick(60)  # 60 FPS (чтобы движение было плавное)
+    if keys[pygame.K_a]:
+        ball.move(-ball.step, 0)
+    if keys[pygame.K_d]:
+        ball.move(ball.step, 0)
+    if keys[pygame.K_w]:
+        ball.move(0, -ball.step)
+    if keys[pygame.K_s]:
+        ball.move(0, ball.step)
 
-    pygame.quit()
+    ball.check_bounds(WIDTH, HEIGHT)
 
+    screen.fill((255, 255, 255))
+    ball.draw(screen)
 
-if __name__ == "__main__":
-    main()
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
