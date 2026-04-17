@@ -10,7 +10,12 @@ ACCENT_COLOR = (100, 200, 255)
 FPS = 30
 
 
-def draw_ui(screen: pygame.Surface, font: pygame.font.Font, title_font: pygame.font.Font, player: MusicPlayer) -> None:
+def draw_ui(
+    screen: pygame.Surface,
+    font: pygame.font.Font,
+    title_font: pygame.font.Font,
+    player: MusicPlayer,
+) -> None:
     screen.fill(BACKGROUND_COLOR)
 
     title = title_font.render("Keyboard Music Player", True, ACCENT_COLOR)
@@ -22,15 +27,16 @@ def draw_ui(screen: pygame.Surface, font: pygame.font.Font, title_font: pygame.f
 
     pygame.draw.rect(screen, ACCENT_COLOR, pygame.Rect(20, 230, 720, 4))
 
-    # Progress bar
     total = max(player.get_track_length(), 0.001)
     progress_ratio = min(player.get_position_seconds() / total, 1.0) if total > 0 else 0
+
     pygame.draw.rect(screen, (80, 80, 80), pygame.Rect(20, 200, 720, 18))
     pygame.draw.rect(screen, ACCENT_COLOR, pygame.Rect(20, 200, int(720 * progress_ratio), 18))
 
 
 def main() -> None:
     pygame.init()
+
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Music Player")
     clock = pygame.time.Clock()
@@ -48,6 +54,7 @@ def main() -> None:
 
             if event.type == pygame.QUIT:
                 running = False
+
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     player.play()
