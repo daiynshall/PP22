@@ -374,7 +374,7 @@ def main():
             notification_w = notification_surf.get_width() + 20    # banner width = text width + padding
             notification_h = notification_surf.get_height() + 12   # banner height = text height + padding
             notification_x = (SCREEN_W - notification_w) // 2      # center the banner horizontally
-            notification_y = TOOLBAR_H + 10                  # just below the toolbar
+            notification_y = TOOLBAR_H + 10                  # jus  ow the toolbar
 
             bg = pygame.Surface((notification_w, notification_h), pygame.SRCALPHA)   # surface with alpha channel
             bg.fill((30, 30, 30, 200))       # semi-transparent dark background (alpha=200 out of 255)
